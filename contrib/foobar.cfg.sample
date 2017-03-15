@@ -1,0 +1,178 @@
+{
+  "soundDevice": "0",
+  "networkInterface": "wlp2s0",
+  "font": "qrwteyrutiyoup:size=11.5:bold",
+  "wmSocket": "WM SOCKET HERE, IF ANY",
+  "icons": [
+    {
+      "name": "calendar",
+      "icon": "\ue054"
+    },
+    {
+      "name": "clock",
+      "icon": "\uf017"
+    },
+    {
+      "name": "brightness",
+      "icon": "\uf042"
+    },
+    {
+      "name": "rx",
+      "icon": "\uf0ed"
+    },
+    {
+      "name": "tx",
+      "icon": "\uf0ee"
+    },
+    {
+      "name": "battery_full",
+      "icon": "\ue05f"
+    },
+    {
+      "name": "battery_full_power",
+      "icon": "\ue060"
+    },
+    {
+      "name": "battery_three_quarters",
+      "icon": "\ue05d"
+    },
+    {
+      "name": "battery_three_quarters_power",
+      "icon": "\ue05d"
+    },
+    {
+      "name": "battery_half",
+      "icon": "\ue05b"
+    },
+    {
+      "name": "battery_half_power",
+      "icon": "\ue05c"
+    },
+    {
+      "name": "battery_quarter",
+      "icon": "\ue059"
+    },
+    {
+      "name": "battery_quarter_power",
+      "icon": "\ue05a"
+    },
+    {
+      "name": "battery_empty",
+      "icon": "\ue057"
+    },
+    {
+      "name": "battery_empty_power",
+      "icon": "\ue058"
+    },
+    {
+      "name": "headphone",
+      "icon": "\ue04c"
+    },
+    {
+      "name": "headphone_mute",
+      "icon": "\ue04d"
+    },
+    {
+      "name": "volume_low",
+      "icon": "\ue04e"
+    },
+    {
+      "name": "volume_low_mute",
+      "icon": "\ue04f"
+    },
+    {
+      "name": "volume_loud",
+      "icon": "\ue050"
+    },
+    {
+      "name": "volume_loud_mute",
+      "icon": "\ue051"
+    },
+    {
+      "name": "cpu",
+      "icon": "\ue055"
+    },
+    {
+      "name": "ram",
+      "icon": "\ue056"
+    },
+    {
+      "name": "bar-left-0",
+      "icon": "\ue070"
+    },
+    {
+      "name": "bar-left-1",
+      "icon": "\ue071"
+    },
+    {
+      "name": "bar-left-2",
+      "icon": "\ue072"
+    },
+    {
+      "name": "bar-left-3",
+      "icon": "\ue073"
+    },
+    {
+      "name": "bar-middle-0",
+      "icon": "\ue074"
+    },
+    {
+      "name": "bar-middle-1",
+      "icon": "\ue075"
+    },
+    {
+      "name": "bar-middle-2",
+      "icon": "\ue076"
+    },
+    {
+      "name": "bar-middle-3",
+      "icon": "\ue077"
+    },
+    {
+      "name": "bar-middle-4",
+      "icon": "\ue078"
+    },
+    {
+      "name": "bar-right-0",
+      "icon": "\ue079"
+    },
+    {
+      "name": "bar-right-1",
+      "icon": "\ue07a"
+    },
+    {
+      "name": "bar-right-2",
+      "icon": "\ue07b"
+    },
+    {
+      "name": "bar-right-3",
+      "icon": "\ue07c"
+    },
+    {
+      "name": "weather",
+      "icon": "\ue061"
+    }
+  ],
+  "weather": {
+    "provider": "OpenWeatherMap (https://openweathermap.org/)",
+    "unit": "C",
+    "location": "Ottawa, Ca",
+    "language": "EN",
+    "updateInSeconds": "60",
+    "apikey": "API KEY HERE - Get a free key at https://openweathermap.org/"
+  },
+  "colors": {
+    "sidebarsbg": "#15967d",
+    "sidebarsfg": "#f0ece9",
+    "urgent": "#daae35",
+    "key": "#15967d",
+    "value": "#f0ece9",
+    "bg": "#282928"
+  },
+  "dzen": {
+    "infoPopup": "",
+    "calendarPopup": "",
+    "weatherPopup": "",
+    "userPopup": ""
+  }
+}
