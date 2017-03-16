@@ -34,6 +34,7 @@ type wmConfig struct {
 	Icons            []wmIcon
 	Weather          weatherInfo
 	Colors           colorInfo
+	Bar              barConfig
 	Dzen             dzenConfig
 }
 
@@ -82,6 +83,8 @@ func loadConfig() {
 	if err = jsonParser.Decode(&config); err != nil {
 		panic(err)
 	}
+
+	updateDzenConfig()
 
 	icons = make(map[string]string)
 	loadDzenColorFormats()

@@ -47,6 +47,11 @@ type dzenConfig struct {
 	UserPopup     string
 }
 
+type barConfig struct {
+	Height     string
+	Contiguous string
+}
+
 type info struct {
 	icon      string
 	key       string
@@ -60,7 +65,9 @@ var (
 	formatDefault string
 	formatUrgent  string
 
-	mainbarWidth = 430
+	mainbarWidth  = 500
+	dzenHeight    = "15"
+	contiguousBar = true
 
 	dzenMainbar []dzenInfo
 	dzenLeftbar []dzenInfo
@@ -72,7 +79,7 @@ var (
 const (
 	// Yeah, I am wondering about this as well.
 	barWidthMagic = 7.5
-	dzenHeight    = "15"
+	leftBarWidth  = 81
 )
 
 func initDzenBars() {
@@ -164,6 +171,10 @@ func updateStatusBar() {
 }
 
 func resizeDzenMainBar() {
+	if contiguousBar {
+		return
+	}
+
 	if newStatusbarLen := int(float32(statusBarLen()) * barWidthMagic); newStatusbarLen != mainbarWidth {
 		mainbarWidth = newStatusbarLen
 		drawDzenMainBar()
@@ -222,9 +233,15 @@ func drawDzenMainBarByMonitor(monitor int) (dzenInfo, error) {
 		return dzenInfo{}, errors.New("Monitor index incorrect")
 	}
 
-	x := monitors[monitor].width - mainbarWidth - 1
+	width := monitors[monitor].width - leftBarWidth
+	x := leftBarWidth
 
-	dzenArgs := []string{"-xs", fmt.Sprintf("%d", (monitor + 1)), "-ta", "r", "-fn", config.Font, "-x", fmt.Sprintf("%d", x), "-w", fmt.Sprintf("%d", mainbarWidth), "-h", dzenHeight, "-bg", config.Colors.Bg, "-fg", config.Colors.Key, "-e", "button2=;"}
+	if !contiguousBar {
+		x = monitors[monitor].width - mainbarWidth - 1
+		width = mainbarWidth
+	}
+
+	dzenArgs := []string{"-xs", fmt.Sprintf("%d", (monitor + 1)), "-ta", "r", "-fn", config.Font, "-x", fmt.Sprintf("%d", x), "-w", fmt.Sprintf("%d", width), "-h", dzenHeight, "-bg", config.Colors.Bg, "-fg", config.Colors.Key, "-e", "button2=;"}
 
 	cmd, dzenStdin, _ := execDzen(dzenArgs)
 	io.WriteString(dzenStdin, fmt.Sprintf("%s\n", statusBar(monitor)))
@@ -253,7 +270,7 @@ func drawDzenLeftBarByMonitor(monitor int) (dzenInfo, error) {
 		return dzenInfo{}, errors.New("Monitor index incorrect")
 	}
 
-	dzenArgs := []string{"-xs", fmt.Sprintf("%d", (monitor + 1)), "-ta", "l", "-fn", config.Font, "-w", "81", "-h", dzenHeight, "-x", "0", "-bg", config.Colors.Bg, "-fg", config.Colors.Key, "-e", "button2=;"}
+	dzenArgs := []string{"-xs", fmt.Sprintf("%d", (monitor + 1)), "-ta", "l", "-fn", config.Font, "-w", fmt.Sprintf("%d", leftBarWidth), "-h", dzenHeight, "-x", "0", "-bg", config.Colors.Bg, "-fg", config.Colors.Key, "-e", "button2=;"}
 
 	cmd, dzenStdin, _ := execDzen(dzenArgs)
 	io.WriteString(dzenStdin, leftBarContent(monitor))
@@ -285,6 +302,18 @@ func drawDzenBars() {
 func drawDzenByMonitor(monitor int) {
 	drawDzenLeftBarByMonitor(monitor)
 	drawDzenMainBarByMonitor(monitor)
+}
+
+func updateDzenConfig() {
+	contiguousBar = true
+	if len(config.Bar.Contiguous) > 0 && config.Bar.Contiguous != "yes" {
+		contiguousBar = false
+	}
+
+	dzenHeight = "15"
+	if len(config.Bar.Height) > 0 {
+		dzenHeight = config.Bar.Height
+	}
 }
 
 func toggleBars(monitor int) {
