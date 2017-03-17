@@ -157,7 +157,7 @@ func statusBar(screen int) string {
 		}
 	}
 	if len(config.Popups.User) > 0 {
-		bar = fmt.Sprintf("%s ^ca(1,dzen-popup-user %d %d %d)^fg(%s)^fg(%s)^bg(%s) %s ^ca()", bar, (screen + 1), monitors[screen].width, monitors[screen].height, config.Colors.SidebarsBg, config.Colors.SidebarsFg, config.Colors.SidebarsBg, username)
+		bar = fmt.Sprintf("%s ^ca(1,%s %d %d %d)^fg(%s)^fg(%s)^bg(%s) %s ^ca()", bar, config.Popups.User, (screen + 1), monitors[screen].width, monitors[screen].height, config.Colors.SidebarsBg, config.Colors.SidebarsFg, config.Colors.SidebarsBg, username)
 	} else {
 		bar = fmt.Sprintf("%s ^fg(%s)^fg(%s)^bg(%s) %s ", bar, config.Colors.SidebarsBg, config.Colors.SidebarsFg, config.Colors.SidebarsBg, username)
 	}
