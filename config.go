@@ -73,7 +73,8 @@ func loadConfig() {
 	jsonConfig, err := os.Open(configFile)
 
 	if err != nil {
-		panic(err)
+		fmt.Fprintf(os.Stderr, "Unable to read config file '%s': %s\nexiting...\n", configFile, err)
+		os.Exit(1)
 	}
 	defer jsonConfig.Close()
 
@@ -81,7 +82,8 @@ func loadConfig() {
 	jsonParser := json.NewDecoder(jsonConfig)
 
 	if err = jsonParser.Decode(&config); err != nil {
-		panic(err)
+		fmt.Fprintf(os.Stderr, "Error reading config file '%s': %s\nexiting...\n", configFile, err)
+		os.Exit(2)
 	}
 
 	updateDzenConfig()
