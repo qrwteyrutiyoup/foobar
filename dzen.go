@@ -48,7 +48,7 @@ type popupConfig struct {
 }
 
 type barConfig struct {
-	Height     string
+	Height     int
 	Contiguous string
 }
 
@@ -311,8 +311,8 @@ func updateDzenConfig() {
 	}
 
 	dzenHeight = "15"
-	if len(config.Bar.Height) > 0 {
-		dzenHeight = config.Bar.Height
+	if config.Bar.Height > 0 {
+		dzenHeight = fmt.Sprintf("%d", config.Bar.Height)
 	}
 }
 
