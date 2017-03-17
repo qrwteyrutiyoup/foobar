@@ -51,6 +51,7 @@ type barConfig struct {
 	Height       int
 	LeftBarWidth int
 	Contiguous   string
+	Position     string
 }
 
 type info struct {
@@ -68,8 +69,9 @@ var (
 
 	mainbarWidth  = 500
 	leftBarWidth  = 0
-	dzenHeight    = "15"
+	barHeight     = 15
 	contiguousBar = true
+	isTopBar      = true
 
 	dzenMainbar []dzenInfo
 	dzenLeftbar []dzenInfo
@@ -242,7 +244,12 @@ func drawDzenMainBarByMonitor(monitor int) (dzenInfo, error) {
 		width = mainbarWidth
 	}
 
-	dzenArgs := []string{"-xs", fmt.Sprintf("%d", (monitor + 1)), "-ta", "r", "-fn", config.Font, "-x", fmt.Sprintf("%d", x), "-w", fmt.Sprintf("%d", width), "-h", dzenHeight, "-bg", config.Colors.Bg, "-fg", config.Colors.Key, "-e", "button2=;"}
+	y := 0
+	if !isTopBar {
+		y = monitors[monitor].height - barHeight
+	}
+
+	dzenArgs := []string{"-xs", fmt.Sprintf("%d", (monitor + 1)), "-ta", "r", "-fn", config.Font, "-x", fmt.Sprintf("%d", x), "-y", fmt.Sprintf("%d", y), "-w", fmt.Sprintf("%d", width), "-h", fmt.Sprintf("%d", barHeight), "-bg", config.Colors.Bg, "-fg", config.Colors.Key, "-e", "button2=;"}
 
 	cmd, dzenStdin, _ := execDzen(dzenArgs)
 	io.WriteString(dzenStdin, fmt.Sprintf("%s\n", statusBar(monitor)))
@@ -271,7 +278,12 @@ func drawDzenLeftBarByMonitor(monitor int) (dzenInfo, error) {
 		return dzenInfo{}, errors.New("Monitor index incorrect")
 	}
 
-	dzenArgs := []string{"-xs", fmt.Sprintf("%d", (monitor + 1)), "-ta", "l", "-fn", config.Font, "-w", fmt.Sprintf("%d", leftBarWidth), "-h", dzenHeight, "-x", "0", "-bg", config.Colors.Bg, "-fg", config.Colors.Key, "-e", "button2=;"}
+	y := 0
+	if !isTopBar {
+		y = monitors[monitor].height - barHeight
+	}
+
+	dzenArgs := []string{"-xs", fmt.Sprintf("%d", (monitor + 1)), "-ta", "l", "-fn", config.Font, "-w", fmt.Sprintf("%d", leftBarWidth), "-h", fmt.Sprintf("%d", barHeight), "-x", "0", "-y", fmt.Sprintf("%d", y), "-bg", config.Colors.Bg, "-fg", config.Colors.Key, "-e", "button2=;"}
 
 	cmd, dzenStdin, _ := execDzen(dzenArgs)
 	io.WriteString(dzenStdin, leftBarContent(monitor))
@@ -311,15 +323,19 @@ func updateDzenConfig() {
 		contiguousBar = false
 	}
 
-	dzenHeight = "15"
+	barHeight = 15
 	if config.Bar.Height > 0 {
-		// This type is a string.
-		dzenHeight = fmt.Sprintf("%d", config.Bar.Height)
+		barHeight = config.Bar.Height
 	}
 
 	leftBarWidth = 0
 	if config.Bar.LeftBarWidth > 0 {
 		leftBarWidth = config.Bar.LeftBarWidth
+	}
+
+	isTopBar = true
+	if config.Bar.Position == "bottom" {
+		isTopBar = false
 	}
 }
 
