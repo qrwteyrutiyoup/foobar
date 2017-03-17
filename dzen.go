@@ -40,11 +40,11 @@ type dzenInfo struct {
 	hidden bool
 }
 
-type dzenConfig struct {
-	InfoPopup     string
-	CalendarPopup string
-	WeatherPopup  string
-	UserPopup     string
+type popupConfig struct {
+	Info    string
+	Clock   string
+	Weather string
+	User    string
 }
 
 type barConfig struct {
@@ -113,8 +113,8 @@ func barWidthFromKey(key string) int {
 }
 
 func leftBarContent(screen int) string {
-	if len(config.Dzen.InfoPopup) > 0 {
-		return fmt.Sprintf("^ca(1,%s %d %d %d)^fg(%s)^bg(%s)  info^fg(%s)^bg(%s)  ^ca()\n", config.Dzen.InfoPopup, (screen + 1), monitors[screen].width, monitors[screen].height, config.Colors.SidebarsFg, config.Colors.SidebarsBg, config.Colors.SidebarsBg, config.Colors.Bg)
+	if len(config.Popups.Info) > 0 {
+		return fmt.Sprintf("^ca(1,%s %d %d %d)^fg(%s)^bg(%s)  info^fg(%s)^bg(%s)  ^ca()\n", config.Popups.Info, (screen + 1), monitors[screen].width, monitors[screen].height, config.Colors.SidebarsFg, config.Colors.SidebarsBg, config.Colors.SidebarsBg, config.Colors.Bg)
 	}
 	return fmt.Sprintf("^fg(%s)^bg(%s)  info^fg(%s)^bg(%s)  \n", config.Colors.SidebarsFg, config.Colors.SidebarsBg, config.Colors.SidebarsBg, config.Colors.Bg)
 }
@@ -142,18 +142,18 @@ func statusBar(screen int) string {
 		key = keys[i]
 		if collected, ok := data[key]; ok {
 			switch {
-			case key == "clock" && len(config.Dzen.CalendarPopup) > 0:
+			case key == "clock" && len(config.Popups.Clock) > 0:
 				barWidth := barWidthFromKey(key)
-				bar = fmt.Sprintf("%s ^ca(1,%s %d %d %d %d)%s^ca()", bar, config.Dzen.CalendarPopup, (screen + 1), monitors[screen].width, monitors[screen].height, barWidth, collected.formatted)
-			case key == "weather" && len(config.Dzen.WeatherPopup) > 0:
+				bar = fmt.Sprintf("%s ^ca(1,%s %d %d %d %d)%s^ca()", bar, config.Popups.Clock, (screen + 1), monitors[screen].width, monitors[screen].height, barWidth, collected.formatted)
+			case key == "weather" && len(config.Popups.Weather) > 0:
 				barWidth := barWidthFromKey(key)
-				bar = fmt.Sprintf("%s ^ca(1,%s %d %d %d %d)%s^ca()", bar, config.Dzen.WeatherPopup, (screen + 1), monitors[screen].width, monitors[screen].height, barWidth, collected.formatted)
+				bar = fmt.Sprintf("%s ^ca(1,%s %d %d %d %d)%s^ca()", bar, config.Popups.Weather, (screen + 1), monitors[screen].width, monitors[screen].height, barWidth, collected.formatted)
 			default:
 				bar = fmt.Sprintf("%s %s", bar, collected.formatted)
 			}
 		}
 	}
-	if len(config.Dzen.UserPopup) > 0 {
+	if len(config.Popups.User) > 0 {
 		bar = fmt.Sprintf("%s ^ca(1,dzen-popup-user %d %d %d)^fg(%s)^fg(%s)^bg(%s) %s ^ca()", bar, (screen + 1), monitors[screen].width, monitors[screen].height, config.Colors.SidebarsBg, config.Colors.SidebarsFg, config.Colors.SidebarsBg, username)
 	} else {
 		bar = fmt.Sprintf("%s ^fg(%s)^fg(%s)^bg(%s) %s ", bar, config.Colors.SidebarsBg, config.Colors.SidebarsFg, config.Colors.SidebarsBg, username)

@@ -35,7 +35,7 @@ type wmConfig struct {
 	Weather          weatherInfo
 	Colors           colorInfo
 	Bar              barConfig
-	Dzen             dzenConfig
+	Popups           popupConfig
 }
 
 var (

@@ -169,10 +169,10 @@
     "value": "#f0ece9",
     "bg": "#282928"
   },
-  "dzen": {
-    "infoPopup": "",
-    "calendarPopup": "",
-    "weatherPopup": "",
-    "userPopup": ""
+  "popups": {
+    "info": "",
+    "clock": "",
+    "weather": "",
+    "user": ""
   }
 }
