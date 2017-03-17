@@ -48,8 +48,9 @@ type popupConfig struct {
 }
 
 type barConfig struct {
-	Height     int
-	Contiguous string
+	Height       int
+	LeftBarWidth int
+	Contiguous   string
 }
 
 type info struct {
@@ -66,6 +67,7 @@ var (
 	formatUrgent  string
 
 	mainbarWidth  = 500
+	leftBarWidth  = 0
 	dzenHeight    = "15"
 	contiguousBar = true
 
@@ -79,7 +81,6 @@ var (
 const (
 	// Yeah, I am wondering about this as well.
 	barWidthMagic = 7.5
-	leftBarWidth  = 81
 )
 
 func initDzenBars() {
@@ -312,7 +313,13 @@ func updateDzenConfig() {
 
 	dzenHeight = "15"
 	if config.Bar.Height > 0 {
+		// This type is a string.
 		dzenHeight = fmt.Sprintf("%d", config.Bar.Height)
+	}
+
+	leftBarWidth = 0
+	if config.Bar.LeftBarWidth > 0 {
+		leftBarWidth = config.Bar.LeftBarWidth
 	}
 }
 
