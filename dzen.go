@@ -18,8 +18,10 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"log"
 	"os"
 	"os/exec"
+	"strings"
 	"time"
 )
 
@@ -168,8 +170,14 @@ func statusBar(screen int) string {
 
 func updateStatusBar() {
 	collectStats()
+
+	var err error
+	status := ""
 	for i := 0; i < len(dzenMainbar); i++ {
-		io.WriteString(dzenMainbar[i].stdin, fmt.Sprintf("%s\n", statusBar(i)))
+		status = fmt.Sprintf("%s\n", statusBar(i))
+		if _, err = io.WriteString(dzenMainbar[i].stdin, status); err != nil {
+			log.Printf("updateStatusBar: WriteString (bar #%d, status: %s) failed: %v", i, strings.Trim(status, "\n"), err)
+		}
 	}
 }
 
@@ -188,8 +196,13 @@ func reloadStatusBar() {
 	collectVolume("volume")
 	collectBrightness("brightness")
 
+	var err error
+	status := ""
 	for i := 0; i < len(monitors); i++ {
-		io.WriteString(dzenMainbar[i].stdin, fmt.Sprintf("%s\n", statusBar(i)))
+		status = fmt.Sprintf("%s\n", statusBar(i))
+		if _, err = io.WriteString(dzenMainbar[i].stdin, status); err != nil {
+			log.Printf("reloadStatusBar: WriteString (bar #%d, status: %s) failed: %v", i, strings.Trim(status, "\n"), err)
+		}
 	}
 }
 
@@ -208,16 +221,31 @@ func execDzen(args []string) (dzen *exec.Cmd, stdin io.WriteCloser, err error) {
 }
 
 func closeDzenByMonitor(monitor int) {
-	closeDzenBar(&dzenLeftbar[monitor])
-	closeDzenBar(&dzenMainbar[monitor])
+	var err error
+	if _, err = closeDzenBar(&dzenLeftbar[monitor]); err != nil {
+		log.Printf("closeDzenByMonitor: closeDzenBar with left bar (%+v) failed for monitor %d: %v", dzenLeftbar[monitor], monitor, err)
+	}
+
+	if _, err = closeDzenBar(&dzenMainbar[monitor]); err != nil {
+		log.Printf("closeDzenByMonitor: closeDzenBar with main bar (%+v) failed for monitor %d: %v", dzenMainbar[monitor], monitor, err)
+	}
 }
 
-func closeDzenBar(dzen *dzenInfo) {
+func closeDzenBar(dzen *dzenInfo) (bool, error) {
 	if dzen != nil && dzen.stdin != nil && dzen.cmd != nil {
-		dzen.stdin.Close()
+		var err error
+		if err = dzen.stdin.Close(); err != nil {
+			log.Printf("closeDzenBar: (dzenInfo: %+v) close failed: %v", dzen, err)
+			return false, err
+		}
 		dzen.hidden = true
-		dzen.cmd.Wait()
+		if err = dzen.cmd.Wait(); err != nil {
+			log.Printf("closeDzenBar: (dzenInfo: %+v) wait failed: %v", dzen, err)
+			return true, err
+		}
+		return true, nil
 	}
+	return false, nil
 }
 
 func closeDzen(dzen []dzenInfo, delay bool) {
@@ -226,8 +254,11 @@ func closeDzen(dzen []dzenInfo, delay bool) {
 		time.Sleep(1 * time.Second)
 	}
 
+	var err error
 	for i := 0; i < len(dzen); i++ {
-		closeDzenBar(&dzen[i])
+		if _, err = closeDzenBar(&dzen[i]); err != nil {
+			log.Printf("closeDzen: error closing %+v: %v", dzen[i], err)
+		}
 	}
 }
 
@@ -251,8 +282,15 @@ func drawDzenMainBarByMonitor(monitor int) (dzenInfo, error) {
 
 	dzenArgs := []string{"-xs", fmt.Sprintf("%d", (monitor + 1)), "-ta", "r", "-fn", config.Font, "-x", fmt.Sprintf("%d", x), "-y", fmt.Sprintf("%d", y), "-w", fmt.Sprintf("%d", width), "-h", fmt.Sprintf("%d", barHeight), "-bg", config.Colors.Bg, "-fg", config.Colors.Key, "-e", "button2=;"}
 
-	cmd, dzenStdin, _ := execDzen(dzenArgs)
-	io.WriteString(dzenStdin, fmt.Sprintf("%s\n", statusBar(monitor)))
+	cmd, dzenStdin, err := execDzen(dzenArgs)
+	if err != nil {
+		return dzenInfo{}, err
+	}
+
+	status := fmt.Sprintf("%s\n", statusBar(monitor))
+	if _, err := io.WriteString(dzenStdin, status); err != nil {
+		log.Printf("drawDzenMainBarByMonitor: (monitor #%d, status: %s) failed: %v", monitor, strings.Trim(status, "\n"), err)
+	}
 
 	dzenBar := dzenInfo{name: fmt.Sprintf("main bar, monitor %d", monitor), cmd: cmd, args: dzenArgs, stdin: dzenStdin, hidden: false}
 	dzenMainbar[monitor] = dzenBar
@@ -285,8 +323,15 @@ func drawDzenLeftBarByMonitor(monitor int) (dzenInfo, error) {
 
 	dzenArgs := []string{"-xs", fmt.Sprintf("%d", (monitor + 1)), "-ta", "l", "-fn", config.Font, "-w", fmt.Sprintf("%d", leftBarWidth), "-h", fmt.Sprintf("%d", barHeight), "-x", "0", "-y", fmt.Sprintf("%d", y), "-bg", config.Colors.Bg, "-fg", config.Colors.Key, "-e", "button2=;"}
 
-	cmd, dzenStdin, _ := execDzen(dzenArgs)
-	io.WriteString(dzenStdin, leftBarContent(monitor))
+	cmd, dzenStdin, err := execDzen(dzenArgs)
+	if err != nil {
+		return dzenInfo{}, err
+	}
+
+	status := fmt.Sprintf("%s", leftBarContent(monitor))
+	if _, err := io.WriteString(dzenStdin, status); err != nil {
+		log.Printf("drawDzenLeftBarByMonitor: (monitor #%d, status: %s) failed: %v", monitor, status, err)
+	}
 
 	dzenBar := dzenInfo{name: fmt.Sprintf("left bar, monitor %d", monitor), cmd: cmd, args: dzenArgs, stdin: dzenStdin, hidden: false}
 	dzenLeftbar[monitor] = dzenBar
@@ -313,8 +358,14 @@ func drawDzenBars() {
 }
 
 func drawDzenByMonitor(monitor int) {
-	drawDzenLeftBarByMonitor(monitor)
-	drawDzenMainBarByMonitor(monitor)
+	var err error
+	if _, err = drawDzenLeftBarByMonitor(monitor); err != nil {
+		log.Printf("drawDzenByMonitor: drawDzenLeftBarByMonitor failed with monitor %d: %v", monitor, err)
+	}
+
+	if _, err = drawDzenMainBarByMonitor(monitor); err != nil {
+		log.Printf("drawDzenByMonitor: drawDzenMainBarByMonitor failed with monitor %d: %v", monitor, err)
+	}
 }
 
 func updateDzenConfig() {

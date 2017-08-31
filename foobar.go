@@ -24,7 +24,7 @@ import (
 
 const (
 	app     = "foobar"
-	version = "0.1, March 15 2017"
+	version = "0.2, August 31 2017"
 	author  = "Sergio Correia <sergio@correia.cc>"
 )
 
