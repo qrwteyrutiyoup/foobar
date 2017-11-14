@@ -1,4 +1,3 @@
-// Copyright 2017 Sergio Correia
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,7 +16,6 @@ package main
 import (
 	"bufio"
 	"fmt"
-	owm "github.com/briandowns/openweathermap"
 	"io/ioutil"
 	"math/rand"
 	"os"
@@ -28,15 +26,6 @@ import (
 	"strings"
 	"time"
 )
-
-type weatherInfo struct {
-	Provider        string
-	Unit            string
-	Location        string
-	Language        string
-	UpdateInSeconds string
-	APIKey          string
-}
 
 type networkInfo struct {
 	validDevice  bool
@@ -49,13 +38,11 @@ type networkInfo struct {
 var (
 	data map[string]info
 
-	network           networkInfo
-	weatherUpdateTime = 1
-	keys              = []string{"weather", "clock", "rx", "tx", "volume", "battery", "brightness", "cpu", "ram"}
+	network networkInfo
+	keys    = []string{"clock", "rx", "tx", "volume", "battery", "brightness", "cpu", "ram"}
 
-	validSoundDevice   = false
-	validWeatherAPIKey = false
-	cores              = runtime.NumCPU()
+	validSoundDevice = false
+	cores            = runtime.NumCPU()
 )
 
 func isValidNetDevice() bool {
@@ -88,10 +75,6 @@ func isValidSoundDevice() bool {
 	removeKey("volume")
 	fmt.Printf("Sound device '%s' is not valid; please recheck the config file\n", config.SoundDevice)
 	return false
-}
-
-func isValidWeatherAPIKey(key string) bool {
-	return owm.ValidAPIKey(key)
 }
 
 func formatData(key, value, icon string, format *string) {
@@ -378,32 +361,7 @@ func collectVolume(key string) {
 	formatData(key, progressBar(volume), icon, format)
 }
 
-func collectWeather(key string) {
-
-	weatherUpdateTime--
-	if weatherUpdateTime <= 0 {
-		unit := config.Weather.Unit
-		w, err := owm.NewCurrent(unit, config.Weather.Language)
-		if err != nil {
-			fmt.Println(err)
-			removeKey(key)
-		}
-		w.CurrentByName(config.Weather.Location)
-		weather := fmt.Sprintf("%.1f°%s", w.Main.Temp, unit)
-
-		formatData(key, weather, icons[key], &formatDefault)
-
-		resizeDzenMainBar()
-
-		weatherUpdateTime, err = strconv.Atoi(config.Weather.UpdateInSeconds)
-	}
-}
-
 func collectStats() {
-	if validWeatherAPIKey {
-		go collectWeather("weather")
-	}
-
 	collectVolume("volume")
 	collectTime("clock")
 	collectRAM("ram")

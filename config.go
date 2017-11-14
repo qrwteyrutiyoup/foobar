@@ -32,7 +32,6 @@ type wmConfig struct {
 	Font             string
 	WmSocket         string
 	Icons            []wmIcon
-	Weather          weatherInfo
 	Colors           colorInfo
 	Bar              barConfig
 	Popups           popupConfig
@@ -96,12 +95,5 @@ func loadConfig() {
 	}
 
 	validSoundDevice = isValidSoundDevice()
-
-	if validWeatherAPIKey = isValidWeatherAPIKey(config.Weather.APIKey); validWeatherAPIKey {
-		os.Setenv("OWM_API_KEY", config.Weather.APIKey)
-	} else {
-		os.Unsetenv("OWM_API_KEY")
-	}
-
 	username = os.Getenv("USER")
 }
